@@ -1,50 +1,71 @@
-abstract class Coffee {
-    public abstract double getCost();
-}
+class Order {
+    private String contents;
+    private boolean takeOut;
 
-class SimpleCoffee extends Coffee {
-    @Override
-    public double getCost() {
-        return 1.1;
-    }
-}
-
-abstract class CoffeeDecorator extends Coffee {
-    protected Coffee decoratedCoffee;
-
-    public CoffeeDecorator(Coffee coffee) {
-        this.decoratedCoffee = coffee;
+    public Order(String contents, boolean takeOut) {
+        this.contents = contents;
+        this.takeOut = takeOut;
     }
 
-    public double getCost() {
-        return decoratedCoffee.getCost();
+    public String getOrder() {
+        return contents;
+    }
+
+    public boolean isTakeOut() {
+        return takeOut;
     }
 }
 
-class MilkDecorator extends CoffeeDecorator {
-    public MilkDecorator(Coffee coffee){
-        super(coffee);
-    }
-    // Implement the Milk decorator
-     public double getCost() {
-        return super.getCost()+0.5;
+class Cashier {
+    public Order takeOrder(String contents, boolean takeOut) {
+        return new Order(contents, takeOut);
     }
 }
 
-class SugarDecorator extends CoffeeDecorator {
-   public SugarDecorator(Coffee coffee){
-        super(coffee);
-    }
-      public double getCost() {
-        return super.getCost()+0.2;
+class Food {
+  private String contents;
+
+  public Food(String order) {
+    this.contents = order;
+  }
+
+  public String getFood() {
+    return contents;
+  }
+}
+
+class Chef {
+    public Food prepareFood(Order order) {
+        return new Food(order.getOrder());
     }
 }
 
-class CreamDecorator extends CoffeeDecorator {
-    public CreamDecorator(Coffee coffee){
-        super(coffee);
+class PackagedFood extends Food {
+    public PackagedFood(Food food) {
+        super(food.getFood() + " in a bag");
     }
-      public double getCost() {
-        return super.getCost()+0.7;
+}
+
+class KitchenStaff {
+    public PackagedFood packageOrder(Food food) {
+        return new PackagedFood(food);
+    }
+}
+
+class DriveThruFacade {
+    private Cashier cashier = new Cashier();
+    private Chef chef = new Chef();
+    private KitchenStaff kitchenStaff = new KitchenStaff();
+
+    public Food takeOrder(String orderContents, boolean takeOut) {
+        // Implement method here
+          Food food= chef.prepareFood(cashier.takeOrder(orderContents, takeOut));
+
+        if(takeOut){
+            return kitchenStaff.packageOrder(food);
+        }
+        else{
+            return food;
+        }
     }
 }

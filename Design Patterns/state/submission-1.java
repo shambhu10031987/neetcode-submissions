@@ -1,52 +1,59 @@
-interface Observer {
-    void notify(String itemName);
+interface State {
+    void handleRequest(Document doc);
 }
 
-class Customer implements Observer {
-    private String name;
-    private int notifications;
+class Document {
+    private State state;
+    private boolean isApproved;
 
-    public Customer(String name) {
-        this.name = name;
-        this.notifications = 0;
+    public Document() {
+        this.state = new Draft();
     }
 
-    public void notify(String itemName) {
-        this.notifications += 1;
+    public State getState() {
+        return this.state;
     }
 
-    public int countNotifications() {
-        return this.notifications;
+    public void setState(State state) {
+        this.state = state;
+    }
+
+    public void publish() {
+        this.state.handleRequest(this);
+    }
+
+    public void setApproval(boolean isApproved) {
+        this.isApproved = isApproved;
+    }
+
+    public boolean isApproved() {
+        return this.isApproved;
     }
 }
 
-class OnlineStoreItem {
-    private String itemName;
-    private int stock;
-    private List<Observer> observers = new ArrayList<>();
-
-
-    public OnlineStoreItem(String itemName, int stock) {
-        this.itemName = itemName;
-        this.stock = stock;
+class Draft implements State {
+    @Override
+    public void handleRequest(Document doc) {
+        // Write your code here
+        doc.setState(new Review());
     }
+}
 
-    public void subscribe(Observer observer) {
-    observers.add(observer);
-    }
-
-    public void unsubscribe(Observer observer) {
-    observers.remove(observer);
-
-    }
-
-    public void updateStock(int newStock) {
-        int oldStock = this.stock;
-        this.stock = newStock;
-         if (oldStock == 0 && newStock > 0) {
-        for(Observer observer:observers){
-            observer.notify(itemName);
+class Review implements State {
+    @Override
+    public void handleRequest(Document doc) {
+        // Write your code here
+        if(doc.isApproved())
+        doc.setState(new Published());
+        else{
+            doc.setState(new Draft());
         }
     }
 }
+
+class Published implements State {
+    @Override
+    public void handleRequest(Document doc) {
+        // Write your code here
+    }
 }
